@@ -37,7 +37,7 @@
     "@rollup/plugin-commonjs": "^25.0.7",
     "@web3-onboard/core": "^2.21.4",
     "@web3-onboard/injected-wallets": "^2.8.5",
-    "@web3-onboard/walletconnect": "^2.3.6",
+    "@web3-onboard/walletconnect": "^2.4.6",
     "assert": "^2.1.0",
     "browserify-zlib": "^0.2.0",
     "buffer": "^6.0.3",
