@@ -1,7 +1,7 @@
 import blocknativeIcon from '../components/icons/blocknative-icon'
 
 let onboard
-const getOnboard = async (passedTheme) => {
+const getOnboard = async passedTheme => {
   const key = 'svelteness::color-scheme'
   const scheme = localStorage[key]
   let theme = passedTheme || scheme
@@ -10,8 +10,8 @@ const getOnboard = async (passedTheme) => {
   return onboard
 }
 
-const classMutationsCheck = (mutationsList) => {
-  mutationsList.forEach((mutation) => {
+const classMutationsCheck = mutationsList => {
+  mutationsList.forEach(mutation => {
     if (onboard && mutation.attributeName === 'class') {
       if (mutation.target.className.includes('dark')) {
         onboard.state.actions.updateTheme('dark')
@@ -28,7 +28,7 @@ const classMutationListener = () => {
   mutationObserver.observe(document.querySelector('html'), { attributes: true })
 }
 
-const intiOnboard = async (theme) => {
+const intiOnboard = async theme => {
   const { default: Onboard } = await import('@web3-onboard/core')
   const { default: injectedModule } = await import('@web3-onboard/injected-wallets')
   const { default: trezorModule } = await import('@web3-onboard/trezor')
@@ -51,22 +51,24 @@ const intiOnboard = async (theme) => {
   const { default: torusModule } = await import('@web3-onboard/torus')
   const { default: uauthModule } = await import('@web3-onboard/uauth')
   const { default: trustModule } = await import('@web3-onboard/trust')
+  const { default: okxModule } = await import('@web3-onboard/okx')
   const { default: xdefiModule } = await import('@web3-onboard/xdefi')
   const { default: cedeModule } = await import('@web3-onboard/cede-store')
   const { default: frameModule } = await import('@web3-onboard/frame')
-  const { default: arcanaModule } = await import('@web3-onboard/arcana-auth')
+  // const { default: arcanaModule } = await import('@web3-onboard/arcana-auth')
   const { default: bloctoModule } = await import('@web3-onboard/blocto')
   const { default: venlyModule } = await import('@web3-onboard/venly')
   const { default: bitgetModule } = await import('@web3-onboard/bitget')
+  const { default: finoaConnectModule } = await import('@web3-onboard/finoaconnect')
   const { default: capsuleModule, Environment } = await import('@web3-onboard/capsule')
   const { default: particleAuthModule } = await import('@web3-onboard/particle-network')
   const INFURA_ID = '8b60d52405694345a99bcb82e722e0af'
 
   const injected = injectedModule()
   const infinityWallet = infinityWalletModule()
-  const arcanaWallet = arcanaModule({
-    clientID: 'xar_test_c9c3bc702eb13255c58dab0e74cfa859711c13cb'
-  })
+  // const arcanaWallet = arcanaModule({
+  //   clientID: 'xar_test_c9c3bc702eb13255c58dab0e74cfa859711c13cb'
+  // })
   const coinbase = coinbaseModule()
   const metamask = metamaskModule({
     options: {
@@ -93,6 +95,7 @@ const intiOnboard = async (theme) => {
   const taho = tahoModule()
   const torus = torusModule()
   const trust = trustModule()
+  const okx = okxModule()
   const xdefi = xdefiModule()
   const cede = cedeModule()
   const bitget = bitgetModule()
@@ -110,6 +113,9 @@ const intiOnboard = async (theme) => {
     appUrl: 'https://www.blocknative.com'
   }
   const trezor = trezorModule(trezorOptions)
+
+  const finoaConnectOptions = {}
+  const finoaconnect = finoaConnectModule(finoaConnectOptions)
 
   const uauthOptions = {
     clientID: 'a25c3a65-a1f2-46cc-a515-a46fe7acb78c',
@@ -146,19 +152,20 @@ const intiOnboard = async (theme) => {
     connect: { autoConnectAllPreviousWallet: true },
     wallets: [
       metamask,
+      coinbase,
       injected,
       walletConnect,
-      coinbase,
       ledger,
       trezor,
       trust,
+      okx,
       gnosis,
       taho,
       bitget,
       xdefi,
       uauth,
       cede,
-      arcanaWallet,
+      // arcanaWallet,
       torus,
       sequence,
       dcent,
@@ -172,11 +179,10 @@ const intiOnboard = async (theme) => {
       frame,
       infinityWallet,
       blocto,
-      capsule,
-      particle
-      // capsule
-
-      // venly
+      particle,
+      venly,
+      finoaconnect,
+      capsule
     ],
     chains: [
       {
@@ -193,12 +199,6 @@ const intiOnboard = async (theme) => {
               </svg>`
           }
         ]
-      },
-      {
-        id: '0x5',
-        token: 'ETH',
-        label: 'Goerli',
-        rpcUrl: `https://goerli.infura.io/v3/${INFURA_ID}`
       },
       {
         id: 11155111,
@@ -245,8 +245,20 @@ const intiOnboard = async (theme) => {
       {
         id: '0xA',
         token: 'OETH',
-        label: 'Optimism',
+        label: 'OP Mainnet',
         rpcUrl: 'https://mainnet.optimism.io'
+      },
+      {
+        id: 666666666,
+        token: 'DEGEN',
+        label: 'Degen',
+        rpcUrl: 'https://rpc.degen.tips'
+      },
+      {
+        id: 2192,
+        token: 'SNAXETH',
+        label: 'SNAX Chain',
+        rpcUrl: 'https://mainnet.snaxchain.io'
       }
     ],
     appMetadata: {

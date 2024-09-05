@@ -548,7 +548,7 @@ type NotificationType = 'pending' | 'success' | 'error' | 'hint'
 
 declare type Network =
   | 'main'
-  | 'goerli'
+  | 'sepolia'
   | 'matic-main'
   | 'matic-mumbai'
   | 'local'
@@ -575,9 +575,9 @@ const injected = injectedModule()
 
 // Only one RPC endpoint required per chain
 const ETH_MAINNET_RPC = `https://mainnet.infura.io/v3/${INFURA_KEY}` || `https://eth-mainnet.g.alchemy.com/v2/${ALCHEMY_KEY}`
-const ETH_GOERLI_RPC = `https://goerli.infura.io/v3/${INFURA_ID}` || `https://eth-goerli.g.alchemy.com/v2/${ALCHEMY_KEY}`
 
 const onboard = Onboard({
+  // This javascript object is unordered meaning props do not require a certain order
   // head to https://explorer.blocknative.com/account to sign up for free
   apiKey: 'xxx387fb-bxx1-4xxc-a0x3-9d37e426xxxx'
   wallets: [injected],
@@ -593,12 +593,6 @@ const onboard = Onboard({
       token: 'ETH',
       label: 'Sepolia',
       rpcUrl: 'https://rpc.sepolia.org/'
-    },
-    {
-      id: '0x5',
-      token: 'ETH',
-      label: 'Goerli',
-      rpcUrl: ETH_GOERLI_RPC
     },
     {
       id: 42161,
@@ -635,6 +629,12 @@ const onboard = Onboard({
       token: 'FTM',
       label: 'Fantom Mainnet',
       rpcUrl: 'https://rpc.ftm.tools/'
+    },
+    {
+      id: 666666666,
+      token: 'DEGEN',
+      label: 'Degen',
+      rpcUrl: 'https://rpc.degen.tips'
     }
   ],
   appMetadata: {
@@ -793,7 +793,13 @@ type WalletState = {
   accounts: Account[]
   chains: ConnectedChain[]
   instance?: unknown
-}
+  /**
+   * WAGMI Connector object
+   * Can be used to leverage all WAGMI functions from
+   * the @web3-onboard/wagmi module
+   * See https://www.npmjs.com/package/@web3-onboard/wagmi for more details
+   */
+  wagmiConnector?: Connector}
 
 type Account = {
   address: string
@@ -1664,7 +1670,9 @@ const config: UserConfig = {
       '@web3-onboard/gas',
       '@web3-onboard/sequence',
       'js-sha3',
-      '@ethersproject/bignumber'
+      '@ethersproject/bignumber',
+      '@safe-global/safe-apps-sdk',
+      '@safe-global/safe-apps-provider'
     ],
     esbuildOptions: {
       // Node.js global to browser globalThis

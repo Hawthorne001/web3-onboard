@@ -6,11 +6,11 @@ import {
   type WalletInit,
   type WalletModule,
   type ValidateReturn,
+  type AppMetadata,
   chainNamespaceValidation,
   chainIdValidation,
   chainValidation,
-  validate,
-  AppMetadata
+  validate
 } from '@web3-onboard/common'
 
 import type {
@@ -98,7 +98,8 @@ const wallet = Joi.object({
   provider: unknownObject,
   instance: unknownObject,
   accounts,
-  chains: Joi.array().items(connectedChain)
+  chains: Joi.array().items(connectedChain),
+  wagmiConnector: unknownObject
 })
   .required()
   .error(new Error('wallet must be defined'))
@@ -245,13 +246,13 @@ const initOptions = Joi.object({
     get: Joi.function().required(),
     stream: Joi.function().required()
   }),
+  wagmi: Joi.function(),
   connect: connectModalOptions,
   containerElements: containerElements,
-  transactionPreview: Joi.object({
-    patchProvider: Joi.function().required(),
-    init: Joi.function().required(),
-    previewTransaction: Joi.function()
-  }),
+  // transactionPreview is deprecated but is still allowed to 
+  // avoid breaking dapps a console error is shown although 
+  // transactionPreview functionality has been removed
+  transactionPreview: Joi.any(),
   theme: theme,
   disableFontDownload: Joi.boolean(),
   unstoppableResolution: Joi.function()
