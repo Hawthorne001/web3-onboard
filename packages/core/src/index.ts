@@ -2,7 +2,7 @@ import connectWallet from './connect.js'
 import disconnectWallet from './disconnect.js'
 import setChain from './chain.js'
 import { state } from './store/index.js'
-import { reset$, wallets$ } from './streams.js'
+import { reset$ } from './streams.js'
 import initI18N from './i18n/index.js'
 import App from './views/Index.svelte'
 import type {
@@ -15,7 +15,6 @@ import { APP_INITIAL_STATE, STORAGE_KEYS } from './constants.js'
 import { configuration, updateConfiguration } from './configuration.js'
 import updateBalances from './update-balances.js'
 import { chainIdToHex, getLocalStore, setLocalStore } from './utils.js'
-import { preflightNotifications } from './preflight-notifications.js'
 
 import {
   validateInitOptions,
@@ -33,10 +32,11 @@ import {
   setWalletModules,
   updateConnectModal,
   updateTheme,
-  updateAppMetadata
+  updateAppMetadata,
+  updateChain
 } from './store/actions.js'
-import type { PatchedEIP1193Provider } from '@web3-onboard/transaction-preview'
-import { getBlocknativeSdk } from './services.js'
+import type { WagmiModuleAPI } from '@web3-onboard/wagmi'
+import { wagmiProviderMethods } from './provider'
 
 const API = {
   connectWallet,
@@ -50,7 +50,6 @@ const API = {
       setLocale,
       updateNotify,
       customNotification,
-      preflightNotifications,
       updateBalances,
       updateAccountCenter,
       setPrimaryWallet,
@@ -74,8 +73,8 @@ export type {
   Notification,
   Notify,
   UpdateNotification,
-  PreflightNotificationsOptions,
-  Theme
+  Theme,
+  WagmiConfig
 } from './types.js'
 
 export type { EIP1193Provider } from '@web3-onboard/common'
@@ -97,7 +96,6 @@ function init(options: InitOptions): OnboardAPI {
     appMetadata,
     i18n,
     accountCenter,
-    apiKey,
     notify,
     gas,
     connect,
@@ -105,7 +103,8 @@ function init(options: InitOptions): OnboardAPI {
     transactionPreview,
     theme,
     disableFontDownload,
-    unstoppableResolution
+    unstoppableResolution,
+    wagmi
   } = options
 
   if (containerElements) updateConfiguration({ containerElements })
@@ -121,8 +120,10 @@ function init(options: InitOptions): OnboardAPI {
   initI18N(i18n)
   addChains(chainIdToHex(chains))
 
-  if (typeof connect !== undefined) {
-    updateConnectModal(connect)
+  if (typeof connect !== 'undefined') {
+    updateConnectModal(
+      connect as ConnectModalOptions | Partial<ConnectModalOptions>
+    )
   }
   // update accountCenter
   if (typeof accountCenter !== 'undefined') {
@@ -145,11 +146,25 @@ function init(options: InitOptions): OnboardAPI {
         ...accountCenter.desktop
       }
     }
-    updateAccountCenter(accountCenterUpdate)
+    if (typeof accountCenterUpdate !== 'undefined') {
+      updateAccountCenter(accountCenterUpdate)
+    }
+  }
+
+  let wagmiApi: WagmiModuleAPI | undefined
+  if (typeof wagmi !== 'undefined') {
+    wagmiApi = wagmi({
+      disconnect: disconnectWallet,
+      updateChain,
+      ...wagmiProviderMethods()
+    })
   }
 
   // update notify
   if (typeof notify !== 'undefined') {
+    console.warn(
+      `Support for notifications on transaction state changes have been deprecated. Custom notifications can still be sent ot the user.`
+    )
     if ('desktop' in notify || 'mobile' in notify) {
       const error = validateNotifyOptions(notify)
 
@@ -158,7 +173,9 @@ function init(options: InitOptions): OnboardAPI {
       }
 
       if (
-        (!notify.desktop || (notify.desktop && !notify.desktop.position)) &&
+        notify &&
+        notify.desktop &&
+        notify.desktop.position &&
         accountCenter &&
         accountCenter.desktop &&
         accountCenter.desktop.position
@@ -167,7 +184,9 @@ function init(options: InitOptions): OnboardAPI {
       }
 
       if (
-        (!notify.mobile || (notify.mobile && !notify.mobile.position)) &&
+        notify &&
+        notify.mobile &&
+        notify.mobile.position &&
         accountCenter &&
         accountCenter.mobile &&
         accountCenter.mobile.position
@@ -175,7 +194,7 @@ function init(options: InitOptions): OnboardAPI {
         notify.mobile.position = accountCenter.mobile.position
       }
 
-      let notifyUpdate: Partial<Notify>
+      let notifyUpdate: Partial<Notify> = {}
 
       if (device.type === 'mobile' && notify.mobile) {
         notifyUpdate = {
@@ -210,33 +229,23 @@ function init(options: InitOptions): OnboardAPI {
     updateNotify(notifyUpdate)
   }
 
-  const app = svelteInstance || mountApp(theme, disableFontDownload)
+  const app =
+    svelteInstance || mountApp(theme || {}, disableFontDownload || false)
 
   updateConfiguration({
     svelteInstance: app,
-    apiKey,
     initialWalletInit: wallets,
     gas,
-    transactionPreview,
-    unstoppableResolution
+    unstoppableResolution,
+    wagmi: wagmiApi
   })
 
   appMetadata && updateAppMetadata(appMetadata)
 
-  if (apiKey && transactionPreview) {
-    const getBnSDK = async () => {
-      transactionPreview.init({
-        containerElement: '#w3o-transaction-preview-container',
-        sdk: await getBlocknativeSdk(),
-        apiKey
-      })
-      wallets$.subscribe(wallets => {
-        wallets.forEach(({ provider }) => {
-          transactionPreview.patchProvider(provider as PatchedEIP1193Provider)
-        })
-      })
-    }
-    getBnSDK()
+  if (transactionPreview) {
+    console.error(
+      'Transaction Preview support has been removed and is no longer supported within Web3-Onboard'
+    )
   }
 
   theme && updateTheme(theme)
@@ -250,13 +259,21 @@ function init(options: InitOptions): OnboardAPI {
       STORAGE_KEYS.LAST_CONNECTED_WALLET
     )
     try {
-      const lastConnectedWalletsParsed = JSON.parse(lastConnectedWallets)
+      const lastConnectedWalletsParsed = JSON.parse(
+        lastConnectedWallets as string
+      )
       if (
         lastConnectedWalletsParsed &&
         Array.isArray(lastConnectedWalletsParsed) &&
         lastConnectedWalletsParsed.length
       ) {
         connectAllPreviousWallets(lastConnectedWalletsParsed, connect)
+      }
+      if (
+        lastConnectedWalletsParsed &&
+        typeof lastConnectedWalletsParsed === 'string'
+      ) {
+        connectAllPreviousWallets([lastConnectedWalletsParsed], connect)
       }
     } catch (err) {
       // Handle for legacy single wallet approach
@@ -329,6 +346,7 @@ const connectAllPreviousWallets = async (
       }
     }
   }
+
   setLocalStore(
     STORAGE_KEYS.LAST_CONNECTED_WALLET,
     JSON.stringify(activeWalletsList)
@@ -451,7 +469,14 @@ function mountApp(theme: Theme, disableFontDownload: boolean) {
         }
       </style>
     `
-  const connectModalContEl = configuration.containerElements.connectModal
+  let connectModalContEl
+  if (
+    configuration &&
+    configuration.containerElements &&
+    configuration.containerElements.connectModal
+  ) {
+    connectModalContEl = configuration.containerElements.connectModal
+  }
 
   const containerElementQuery =
     connectModalContEl || state.get().accountCenter.containerElement || 'body'

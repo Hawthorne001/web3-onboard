@@ -2,21 +2,26 @@ import type { SvelteComponent } from 'svelte'
 
 import type {
   AppMetadata,
+  Address,
   Device,
   WalletInit,
   EIP1193Provider,
   WalletModule,
   Chain,
   TokenSymbol,
-  ChainWithDecimalId
+  ChainWithDecimalId,
+  DeviceNotBrowser
 } from '@web3-onboard/common'
 
 import type gas from '@web3-onboard/gas'
 import type unstoppableResolution from '@web3-onboard/unstoppable-resolution'
-import type { TransactionPreviewAPI } from '@web3-onboard/transaction-preview'
 
 import type en from './i18n/en.json'
-import type { EthereumTransactionData, Network } from 'bnc-sdk'
+import type { Network } from 'bnc-sdk'
+import type { GetEnsTextReturnType } from 'viem'
+import type { Config, Connector, WagmiModuleAPI } from '@web3-onboard/wagmi'
+import type wagmi from '@web3-onboard/wagmi'
+export type { Config as WagmiConfig } from '@web3-onboard/wagmi'
 
 export interface InitOptions {
   /**
@@ -44,8 +49,8 @@ export interface InitOptions {
    */
   accountCenter?: AccountCenterOptions
   /**
-   * Opt in to Blocknative value add services (transaction updates) by providing
-   * your Blocknative API key, head to https://explorer.blocknative.com/account
+   * @deprecated apiKey parameter has been deprecated and is no
+   * longer used within Web3-Onboard to provide notifications
    */
   apiKey?: string
   /**
@@ -54,6 +59,10 @@ export interface InitOptions {
   notify?: Partial<NotifyOptions> | Partial<Notify>
   /** Gas module */
   gas?: typeof gas
+  /** Web3-Onboard module to add Wagmi support
+   * see https://www.npmjs.com/package/@web3-onboard/wagmi
+   */
+  wagmi?: typeof wagmi
   /**
    * Object mapping for W3O components with the key being the DOM
    * element to mount the component to, this defines the DOM container
@@ -61,9 +70,12 @@ export interface InitOptions {
    */
   containerElements?: Partial<ContainerElements>
   /**
-   * Transaction Preview module
+   * @deprecated Transaction Preview support has ended and Transaction Preview
+   * is no longer supported as part of Web3-Onboard.
+   * Please remove from your onboard config to avoid
+   * console errors and un-expected behavior
    */
-  transactionPreview?: TransactionPreviewAPI
+  transactionPreview?: unknown
   /**
    * Custom or predefined theme for Web3Onboard
    * BuiltInThemes: ['default', 'dark', 'light', 'system']
@@ -135,6 +147,13 @@ export interface WalletState {
   // is connected to multiple chains at once
   chains: ConnectedChain[]
   instance?: unknown
+  /**
+   * WAGMI Connector object
+   * Can be used to leverage all WAGMI functions from
+   * the @web3-onboard/wagmi module
+   * See https://www.npmjs.com/package/@web3-onboard/wagmi for more details
+   */
+  wagmiConnector?: Connector
 }
 
 export type Account = {
@@ -155,21 +174,15 @@ export interface SecondaryTokenBalances {
 
 export interface Ens {
   name: string
-  avatar: Avatar | null
-  contentHash: string | null
-  getText: (key: string) => Promise<string | undefined>
+  avatar: string | null
+  contentHash: Address | null
+  ensResolver: Address | null
+  getText: (key: string) => Promise<GetEnsTextReturnType>
 }
 
 export interface Uns {
   name: string
 }
-
-export type Avatar = {
-  url: string
-  linkage: Array<{ type: string; content: string }>
-}
-
-export type Address = string
 
 export interface AppState {
   chains: Chain[]
@@ -180,7 +193,8 @@ export interface AppState {
   notify: Notify
   notifications: Notification[]
   connect: ConnectModalOptions
-  appMetadata: AppMetadata
+  appMetadata: AppMetadata | null
+  wagmiConfig: Config | null
 }
 
 export type Configuration = {
@@ -188,10 +202,15 @@ export type Configuration = {
   device: Device | DeviceNotBrowser
   initialWalletInit: WalletInit[]
   appMetadata?: AppMetadata | null
+  /**
+   * @deprecated APIKey parameter has been deprecated and is no
+   * longer used within Web3-Onboard
+   */
   apiKey?: string
   gas?: typeof gas
+  wagmi?: WagmiModuleAPI
   containerElements?: ContainerElements
-  transactionPreview?: TransactionPreviewAPI
+  transactionPreview?: unknown
   unstoppableResolution?: typeof unstoppableResolution
 }
 
@@ -282,13 +301,13 @@ export type AccountCenter = {
    */
   hideTransactionProtectionBtn?: boolean
   /**
-   * Controls the visibility of the 'Enable Transaction Protection' button 
+   * Controls the visibility of the 'Enable Transaction Protection' button
    * within the expanded Account Center.
    * - When set to false (default), the button is visible.
    * - When set to true, the button is hidden.
-   * This setting can be configured globally for the Account Center, or 
+   * This setting can be configured globally for the Account Center, or
    * separately for different interfaces like desktop/mobile.
-   * defaults to 
+   * defaults to
    * `docs.blocknative.com/blocknative-mev-protection/transaction-boost-alpha`
    * Use this property to override the default link to give users
    * more information about transaction protection and the RPC be set
@@ -308,13 +327,13 @@ export type AccountCenterOptions = {
   desktop: Omit<AccountCenter, 'expanded'>
   mobile: Omit<AccountCenter, 'expanded'>
   /**
-   * Controls the visibility of the 'Enable Transaction Protection' button 
+   * Controls the visibility of the 'Enable Transaction Protection' button
    * within the expanded Account Center.
    * - When set to false (default), the button is visible.
    * - When set to true, the button is hidden.
-   * This setting can be configured globally for the Account Center, or 
+   * This setting can be configured globally for the Account Center, or
    * separately for different interfaces like desktop/mobile.
-   * defaults to 
+   * defaults to
    * `docs.blocknative.com/blocknative-mev-protection/transaction-boost-alpha`
    * Use this property to override the default link to give users
    * more information about transaction protection and the RPC be set
@@ -351,15 +370,6 @@ export type Notify = {
    * default: true
    */
   enabled: boolean
-  /**
-   * Callback that receives all transaction events
-   * Return a custom notification based on the event
-   * Or return false to disable notification for this event
-   * Or return undefined for a default notification
-   */
-  transactionHandler: (
-    event: EthereumTransactionData
-  ) => TransactionHandlerReturn
   /**
    * Position of notifications that defaults to the same position as the
    * Account Center (if enabled) of the top right if AC is disabled
@@ -434,15 +444,6 @@ export interface UpdateNotification {
   }
 }
 
-export interface PreflightNotificationsOptions {
-  sendTransaction?: () => Promise<string | void>
-  estimateGas?: () => Promise<string>
-  gasPrice?: () => Promise<string>
-  balance?: string | number
-  txDetails?: TxDetails
-  txApproveReminderTimeout?: number
-}
-
 export interface TxDetails {
   value: string | number
   to?: string
@@ -467,6 +468,7 @@ export type Action =
   | UpdateAllWalletsAction
   | UpdateConnectModalAction
   | UpdateAppMetadataAction
+  | UpdateWagmiConfigAction
 
 export type AddChainsAction = { type: 'add_chains'; payload: Chain[] }
 export type UpdateChainsAction = { type: 'update_chains'; payload: Chain }
@@ -489,7 +491,7 @@ export type ResetStoreAction = {
 
 export type UpdateAccountAction = {
   type: 'update_account'
-  payload: { id: string; address: string } & Partial<Account>
+  payload: { id: string; address: Address } & Partial<Account>
 }
 
 export type UpdateAccountCenterAction = {
@@ -537,6 +539,11 @@ export type UpdateAppMetadataAction = {
   payload: AppMetadata | Partial<AppMetadata>
 }
 
+export type UpdateWagmiConfigAction = {
+  type: 'update_wagmi_config'
+  payload: Config
+}
+
 // ==== MISC ==== //
 export type ChainStyle = {
   icon: string
@@ -548,12 +555,6 @@ export type NotifyEventStyles = {
   borderColor: string
   eventIcon: string
   iconColor?: string
-}
-
-export type DeviceNotBrowser = {
-  type: null
-  os: null
-  browser: null
 }
 
 export type WalletPermission = {

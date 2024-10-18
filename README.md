@@ -8,7 +8,6 @@
 - **Multiple Wallets and Accounts Connection**: Allow your users to connect multiple wallets and multiple accounts within each wallet at the same time to your app.
 - **Multiple Chain Support**: Allow users to switch between chains/networks with ease.
 - **Account Center**: A persistent interface to manage wallet connections and networks, with a minimal version for mobile
-- **Notify**: Real-time transaction notifications for the connected wallet addresses for all transaction states
 - **Wallet Provider Standardization**: All wallet modules expose a provider that is patched to be compliant with the [EIP-1193](https://eips.ethereum.org/EIPS/eip-1193), [EIP-1102](https://eips.ethereum.org/EIPS/eip-1102), [EIP-3085](https://eips.ethereum.org/EIPS/eip-3085) and [EIP-3326](https://ethereum-magicians.org/t/eip-3326-wallet-switchethereumchain/5471) specifications.
 - **Dynamic Imports**: Supporting multiple wallets in your app requires a lot of dependencies. Onboard dynamically imports a wallet and its dependencies only when the user selects it, so that minimal bandwidth is used.
 
@@ -106,34 +105,38 @@ For full documentation, check out the README.md for each package or the [docs pa
 **SDK Wallets**
 
 - [Arcana](packages/arcana-auth/README.md)
-- [Coinbase](packages/coinbase/README.md)
-- [Trust](packages/trust/README.md)
-- [WalletConnect](packages/walletconnect/README.md)
-- [Safe](packages/gnosis/README.md)
-- [Magic](packages/magic/README.md)
-- [Fortmatic](packages/fortmatic/README.md)
-- [Portis](packages/portis/README.md)
-- [MEW-Wallet](packages/mew-wallet/README.md)
-- [Web3Auth](packages/web3auth/README.md)
+- [Bitget](packages/bitget/README.md)
+- [Blocto](packages/blocto/README.md)
 - [Capsule](packages/capsule/README.md)
+- [Coinbase](packages/coinbase/README.md)
+- [Enkrypt](packages/enkrypt/README.md)
+- [FinoaConnect](packages/finoaconnect/README.md)
+- [Fortmatic](packages/fortmatic/README.md)
+- [Frame](packages/frame/README.md)
+- [Frontier](packages/frontier/README.md)
+- [Infinity Wallet](packages/infinity-wallet/README.md)
+- [Magic](packages/magic/README.md)
+- [MetaMask](packages/metamask/README.md)
+- [MEW-Wallet](packages/mew-wallet/README.md)
+- [OKX](packages/okx/README.md)
+- [Particle Network](packages/particle-network/README.md)
+- [Portis](packages/portis/README.md)
+- [Safe](packages/gnosis/README.md)
 - [Sequence](packages/sequence/README.md)
 - [Taho (previously Tally Ho)](packages/tallyho/README.md)
-- [Enkrypt](packages/enkrypt/README.md)
+- [Trust](packages/trust/README.md)
 - [Unstoppable Domains](packages/uauth/README.md)
-- [Frontier](packages/frontier/README.md)
+- [WalletConnect](packages/walletconnect/README.md)
+- [Web3Auth](packages/web3auth/README.md)
 - [XDEFI](packages/xdefi/README.md)
-- [Infinity Wallet](packages/infinity-wallet/README.md)
-- [Frame](packages/frame/README.md)
-- [Blocto](packages/blocto/README.md)
-- [Particle Network](packages/particle-network/README.md)
 
 **Hardware Wallets**
 
+- [D'CENT](packages/dcent/README.md)
+- [KeepKey](packages/keepkey/README.md)
+- [Keystone](packages/keystone/README.md)
 - [Ledger](packages/ledger/README.md)
 - [Trezor](packages/trezor/README.md)
-- [Keystone](packages/keystone/README.md)
-- [KeepKey](packages/keepkey/README.md)
-- [D'CENT](packages/dcent/README.md)
 
 **Frameworks**
 

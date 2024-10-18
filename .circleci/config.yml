@@ -167,7 +167,7 @@ commands:
 jobs:
   build-core:
     docker:
-      - image: cimg/node:16.13.1
+      - image: cimg/node:16.15.1
     working_directory: ~/web3-onboard-monorepo/packages/core
     steps:
       - node-build-steps
@@ -255,6 +255,12 @@ jobs:
     working_directory: ~/web3-onboard-monorepo/packages/trust
     steps:
       - node-build-steps
+  build-okx:
+    docker:
+      - image: cimg/node:16.13.1
+    working_directory: ~/web3-onboard-monorepo/packages/okx
+    steps:
+      - node-build-steps
   build-frontier:
     docker:
       - image: cimg/node:16.13.1
@@ -275,7 +281,7 @@ jobs:
       - node-build-steps
   build-react:
     docker:
-      - image: cimg/node:16.13.1
+      - image: cimg/node:16.15.1
     working_directory: ~/web3-onboard-monorepo/packages/react
     steps:
       - node-build-steps
@@ -293,7 +299,7 @@ jobs:
       - node-build-steps
   build-web3auth:
     docker:
-      - image: cimg/node:16.18.1
+      - image: cimg/node:18.0.0
     working_directory: ~/web3-onboard-monorepo/packages/web3auth
     steps:
       - node-build-steps
@@ -305,7 +311,7 @@ jobs:
       - node-build-steps
   build-vue:
     docker:
-      - image: cimg/node:16.13.1
+      - image: cimg/node:16.15.1
     working_directory: ~/web3-onboard-monorepo/packages/vue
     steps:
       - node-build-steps
@@ -341,7 +347,7 @@ jobs:
       - node-build-steps
   build-uauth:
     docker:
-      - image: cimg/node:16.13.1
+      - image: cimg/node:18.0.0
     working_directory: ~/web3-onboard-monorepo/packages/uauth
     steps:
       - node-build-steps
@@ -395,7 +401,7 @@ jobs:
       - node-build-steps
   build-arcana-auth:
     docker:
-      - image: cimg/node:16.13.1
+      - image: cimg/node:18.0.0
     working_directory: ~/web3-onboard-monorepo/packages/arcana-auth
     steps:
       - node-build-steps
@@ -407,7 +413,7 @@ jobs:
       - node-build-steps
   build-venly:
     docker:
-      - image: cimg/node:16.13.1
+      - image: cimg/node:18.18.2
     working_directory: ~/web3-onboard-monorepo/packages/venly
     steps:
       - node-build-steps
@@ -432,13 +438,13 @@ jobs:
     resource_class: large
   build-solid:
     docker:
-      - image: cimg/node:16.14.2
+      - image: cimg/node:16.15.1
     working_directory: ~/web3-onboard-monorepo/packages/solid
     steps:
       - node-build-steps
   build-capsule:
     docker:
-      - image: cimg/node:16.14.2
+      - image: cimg/node:18.18.2
     working_directory: ~/web3-onboard-monorepo/packages/capsule
     steps:
       - node-build-steps
@@ -448,11 +454,41 @@ jobs:
     working_directory: ~/web3-onboard-monorepo/packages/particle-network
     steps:
       - node-build-steps
+  build-finoaconnect:
+    docker:
+      - image: cimg/node:18.0.0
+    working_directory: ~/web3-onboard-monorepo/packages/finoaconnect
+    steps:
+      - node-build-steps
+  build-wagmi:
+    docker:
+      - image: cimg/node:18.0.0
+    working_directory: ~/web3-onboard-monorepo/packages/wagmi
+    steps:
+      - node-build-steps
+  build-passport:
+    docker:
+      - image: cimg/node:18.0.0
+    working_directory: ~/web3-onboard-monorepo/packages/passport
+    steps:
+      - node-build-steps
+  build-bloom:
+    docker:
+      - image: cimg/node:18.0.0
+    working_directory: ~/web3-onboard-monorepo/packages/bloom
+    steps:
+      - node-build-steps
+  build-keplr:
+    docker:
+      - image: cimg/node:18.0.0
+    working_directory: ~/web3-onboard-monorepo/packages/keplr
+    steps:
+      - node-build-steps
 
   # Build staging/Alpha releases
   build-staging-core:
     docker:
-      - image: cimg/node:16.13.1
+      - image: cimg/node:16.15.1
     working_directory: ~/web3-onboard-monorepo/packages/core
     steps:
       - node-staging-build-steps
@@ -540,6 +576,12 @@ jobs:
     working_directory: ~/web3-onboard-monorepo/packages/trust
     steps:
       - node-staging-build-steps
+  build-staging-okx:
+    docker:
+      - image: cimg/node:16.13.1
+    working_directory: ~/web3-onboard-monorepo/packages/okx
+    steps:
+      - node-staging-build-steps
   build-staging-frontier:
     docker:
       - image: cimg/node:16.13.1
@@ -560,7 +602,7 @@ jobs:
       - node-staging-build-steps
   build-staging-react:
     docker:
-      - image: cimg/node:16.13.1
+      - image: cimg/node:16.15.1
     working_directory: ~/web3-onboard-monorepo/packages/react
     steps:
       - node-staging-build-steps
@@ -578,7 +620,7 @@ jobs:
       - node-staging-build-steps
   build-staging-web3auth:
     docker:
-      - image: cimg/node:16.18.1
+      - image: cimg/node:18.0.0
     working_directory: ~/web3-onboard-monorepo/packages/web3auth
     steps:
       - node-staging-build-steps
@@ -590,7 +632,7 @@ jobs:
       - node-staging-build-steps
   build-staging-vue:
     docker:
-      - image: cimg/node:16.13.1
+      - image: cimg/node:16.15.1
     working_directory: ~/web3-onboard-monorepo/packages/vue
     steps:
       - node-staging-build-steps
@@ -626,7 +668,7 @@ jobs:
       - node-staging-build-steps
   build-staging-uauth:
     docker:
-      - image: cimg/node:16.13.1
+      - image: cimg/node:18.0.0
     working_directory: ~/web3-onboard-monorepo/packages/uauth
     steps:
       - node-staging-build-steps
@@ -680,7 +722,7 @@ jobs:
       - node-staging-build-steps
   build-staging-arcana-auth:
     docker:
-      - image: cimg/node:16.13.1
+      - image: cimg/node:18.0.0
     working_directory: ~/web3-onboard-monorepo/packages/arcana-auth
     steps:
       - node-staging-build-steps
@@ -692,7 +734,7 @@ jobs:
       - node-staging-build-steps
   build-staging-venly:
     docker:
-      - image: cimg/node:16.13.1
+      - image: cimg/node:18.18.2
     working_directory: ~/web3-onboard-monorepo/packages/venly
     steps:
       - node-staging-build-steps
@@ -716,13 +758,13 @@ jobs:
       - node-staging-build-steps
   build-staging-solid:
     docker:
-      - image: cimg/node:16.14.2
+      - image: cimg/node:16.15.1
     working_directory: ~/web3-onboard-monorepo/packages/solid
     steps:
       - node-staging-build-steps
   build-staging-capsule:
     docker:
-      - image: cimg/node:16.14.2
+      - image: cimg/node:18.18.2
     working_directory: ~/web3-onboard-monorepo/packages/capsule
     steps:
       - node-staging-build-steps
@@ -731,7 +773,37 @@ jobs:
       - image: cimg/node:18.0.0
     working_directory: ~/web3-onboard-monorepo/packages/particle-network
     steps:
-      - node-build-steps
+      - node-staging-build-steps
+  build-staging-wagmi:
+    docker:
+      - image: cimg/node:18.0.0
+    working_directory: ~/web3-onboard-monorepo/packages/wagmi
+    steps:
+      - node-staging-build-steps
+  build-staging-passport:
+    docker:
+      - image: cimg/node:18.0.0
+    working_directory: ~/web3-onboard-monorepo/packages/passport
+    steps:
+      - node-staging-build-steps
+  build-staging-bloom:
+    docker:
+      - image: cimg/node:18.0.0
+    working_directory: ~/web3-onboard-monorepo/packages/bloom
+    steps:
+      - node-staging-build-steps
+  build-staging-finoaconnect:
+    docker:
+      - image: cimg/node:18.0.0
+    working_directory: ~/web3-onboard-monorepo/packages/finoaconnect
+    steps:
+      - node-staging-build-steps
+  build-staging-keplr:
+    docker:
+      - image: cimg/node:18.0.0
+    working_directory: ~/web3-onboard-monorepo/packages/keplr
+    steps:
+      - node-staging-build-steps
 
 workflows:
   version: 2
@@ -741,6 +813,7 @@ workflows:
           <<: *deploy_production_filters
       - build-staging-common:
           <<: *deploy_staging_filters
+
   core:
     jobs:
       - build-core:
@@ -825,6 +898,12 @@ workflows:
       - build-trust:
           <<: *deploy_production_filters
       - build-staging-trust:
+          <<: *deploy_staging_filters
+  okx:
+    jobs:
+      - build-okx:
+          <<: *deploy_production_filters
+      - build-staging-okx:
           <<: *deploy_staging_filters
   frontier:
     jobs:
@@ -1017,4 +1096,34 @@ workflows:
       - build-particle:
           <<: *deploy_production_filters
       - build-staging-particle:
+          <<: *deploy_staging_filters
+  wagmi:
+    jobs:
+      - build-wagmi:
+          <<: *deploy_production_filters
+      - build-staging-wagmi:
+          <<: *deploy_staging_filters
+  passport:
+    jobs:
+      - build-passport:
+          <<: *deploy_production_filters
+      - build-staging-passport:
+          <<: *deploy_staging_filters
+  bloom:
+    jobs:
+      - build-bloom:
+          <<: *deploy_production_filters
+      - build-staging-bloom:
+          <<: *deploy_staging_filters
+  finoaconnect:
+    jobs:
+      - build-finoaconnect:
+          <<: *deploy_production_filters
+      - build-staging-finoaconnect:
+          <<: *deploy_staging_filters
+  keplr:
+    jobs:
+      - build-keplr:
+          <<: *deploy_production_filters
+      - build-staging-keplr:
           <<: *deploy_staging_filters

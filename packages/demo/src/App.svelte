@@ -16,6 +16,7 @@
   import magicModule from '@web3-onboard/magic'
   import web3authModule from '@web3-onboard/web3auth'
   import gas from '@web3-onboard/gas'
+  import wagmi from '@web3-onboard/wagmi'
   import dcentModule from '@web3-onboard/dcent'
   import sequenceModule from '@web3-onboard/sequence'
   import tallyHoModule from '@web3-onboard/tallyho'
@@ -28,14 +29,21 @@
   import uauthModule from '@web3-onboard/uauth'
   import phantomModule from '@web3-onboard/phantom'
   import trustModule from '@web3-onboard/trust'
+  import okxModule from '@web3-onboard/okx'
   import frontierModule from '@web3-onboard/frontier'
   import bloctoModule from '@web3-onboard/blocto'
   import cedeStoreModule from '@web3-onboard/cede-store'
   import arcanaAuthModule from '@web3-onboard/arcana-auth'
   import venlyModule from '@web3-onboard/venly'
   import bitgetModule from '@web3-onboard/bitget'
+  import bloomModule from '@web3-onboard/bloom'
   import particleAuthModule from '@web3-onboard/particle-network'
-  import capsuleModule, { Environment } from '@web3-onboard/capsule'
+  import finoaConnectModule from '@web3-onboard/finoaconnect'
+  import keplrModule from '@web3-onboard/keplr'
+  import capsuleModule, {
+    Environment,
+    OAuthMethod
+  } from '@web3-onboard/capsule'
   import {
     recoverAddress,
     arrayify,
@@ -47,6 +55,19 @@
   import VConsole from 'vconsole'
   import blocknativeIcon from './blocknative-icon.js'
   import DappAuth from '@blocto/dappauth'
+  import {
+    sendTransaction as wagmiSendTransaction,
+    switchChain,
+    disconnect,
+    signMessage as wagmiSignMessage,
+    getConnectors,
+    watchConnectors
+  } from '@web3-onboard/wagmi'
+  import { parseEther, isHex, fromHex } from 'viem'
+  import passportModule, { Network } from '@web3-onboard/passport'
+  import { EthereumPrivateKeyProvider } from '@web3auth/ethereum-provider'
+  import { CHAIN_NAMESPACES } from '@web3auth/base'
+  import { WebauthnSigner } from '@0xpass/webauthn-signer'
 
   if (window.innerWidth < 700) {
     new VConsole()
@@ -85,7 +106,8 @@
     displayUnavailable: [
       ProviderLabel.MetaMask,
       ProviderLabel.Trust,
-      ProviderLabel.Phantom
+      ProviderLabel.Phantom,
+      ProviderLabel.OKXWallet
     ]
     // but only show Binance and Bitski wallet if they are available
     // filter: {
@@ -148,9 +170,27 @@
     apiKey: 'pk_test_886ADCAB855632AA'
   })
 
+  const privateKeyProvider = new EthereumPrivateKeyProvider({
+    config: {
+      chainConfig: {
+        chainId: `0xAA36A7`,
+        rpcTarget: `https://rpc.sepolia.org/`,
+        chainNamespace: CHAIN_NAMESPACES.EIP155,
+        displayName: 'Sepolia',
+        blockExplorerUrl: 'https://sepolia.etherscan.io',
+        ticker: 'ETH',
+        tickerName: 'Ether',
+        logo: 'https://images.toruswallet.io/ethereum.svg'
+      }
+    }
+  })
+
+  // must access via http://localhost:8080 to be whitelisted
   const web3auth = web3authModule({
     clientId:
-      'DJuUOKvmNnlzy6ruVgeWYWIMKLRyYtjYa9Y10VCeJzWZcygDlrYLyXsBQjpJ2hxlBO9dnl8t9GmAC2qOP5vnIGo'
+      'BErDmyuxFPtpvM_Isiy8RHNWOWYvkAUehrgmO0rDoe5yr33ixt5s98eT_qePTyRsgpN7SVQwrEUMx7gON0jBDQI',
+    privateKeyProvider: privateKeyProvider,
+    web3AuthNetwork: 'sapphire_devnet'
   })
 
   const arcanaAuth = arcanaAuthModule({
@@ -167,10 +207,29 @@
   const zeal = zealModule()
   const phantom = phantomModule()
   const trust = trustModule()
+  const okx = okxModule()
   const frontier = frontierModule()
   const cedeStore = cedeStoreModule()
   const blocto = bloctoModule()
   const tallyho = tallyHoModule()
+  const bloom = bloomModule({
+    projectId: 'f6bd6e2911b56f5ac3bc8b2d0e2d7ad5',
+    dappUrl: 'https://www.onboard.blocknative.com'
+  })
+
+  const webauthnSigner = new WebauthnSigner({
+    rpId: 'localhost',
+    rpName: '0xPass'
+  })
+
+  const passport = passportModule({
+    network: Network.TESTNET,
+    scopeId: 'd8ae4424-c1f6-42b0-ab5e-2688bdaa0ff2',
+    signer: webauthnSigner,
+    fallbackProvider: '' // insert your alchemy / infura url here
+    // encryptionSecret: '' // encryption secret is optional, but advised to securely store values in browser storage
+  })
+  const finoaConnect = finoaConnectModule()
 
   const trezorOptions = {
     email: 'test@test.com',
@@ -201,6 +260,7 @@
     clientKey: 'cSTLqhvONB5j588Wz6E5WJLMPrHeUlGbymf1DFhO',
     appId: 'b1f0239a-edb0-41f9-b0f5-ab780bb02a9e'
   })
+  const keplr = keplrModule()
 
   const dcent = dcentModule()
   const bitget = bitgetModule()
@@ -217,7 +277,15 @@
   })
   const capsule = capsuleModule({
     environment: Environment.DEVELOPMENT,
-    apiKey: '992bbd9146d5de8ad0419f141d9a7ca7'
+    apiKey: '992bbd9146d5de8ad0419f141d9a7ca7',
+    modalProps: {
+      oAuthMethods: [OAuthMethod.GOOGLE, OAuthMethod.TWITTER, OAuthMethod.APPLE,OAuthMethod.DISCORD]
+    },
+    constructorOpts: {
+      portalBackgroundColor: '#5e5656',
+      portalPrimaryButtonColor: '#ff6700',
+      portalTextColor: '#ffffff'
+    }
   })
 
   const onboard = Onboard({
@@ -231,8 +299,10 @@
       phantom,
       safe,
       trust,
+      okx,
       tallyho,
       bitget,
+      bloom,
       enkrypt,
       infinityWallet,
       mewWallet,
@@ -255,10 +325,14 @@
       arcanaAuth,
       blocto,
       venly,
-      particle
+      particle,
+      passport,
+      finoaConnect,
+      keplr
     ],
-    // transactionPreview,
+    transactionPreview,
     gas,
+    wagmi,
     chains: [
       {
         id: '0x1',
@@ -296,12 +370,6 @@
         token: 'ARB',
         label: 'Arbitrum Nova',
         rpcUrl: 'https://nova.arbitrum.io/rpc'
-      },
-      {
-        id: '0x5',
-        token: 'ETH',
-        label: 'Goerli',
-        rpcUrl: 'https://ethereum-goerli.publicnode.com'
       },
       {
         id: '0x13881',
@@ -346,14 +414,21 @@
       {
         id: 10,
         token: 'OETH',
-        label: 'Optimism',
+        label: 'OP Mainnet',
         rpcUrl: 'https://mainnet.optimism.io'
+      },
+      {
+        id: 666666666,
+        token: 'DEGEN',
+        label: 'Degen',
+        rpcUrl: 'https://rpc.degen.tips'
       }
     ],
     connect: {
       // disableClose: true,
       // removeWhereIsMyWalletWarning: true,
-      autoConnectAllPreviousWallet: true
+      // autoConnectLastWallet: false,
+      autoConnectAllPreviousWallet: true,
     },
     appMetadata: {
       name: 'Blocknative',
@@ -392,22 +467,6 @@
     notify: {
       desktop: {
         enabled: true,
-        transactionHandler: transaction => {
-          console.log({ transaction })
-          if (transaction.eventCode === 'txConfirmed') {
-            return {
-              autoDismiss: 0
-            }
-          }
-          // if (transaction.eventCode === 'txPool') {
-          //   return {
-          //     type: 'hint',
-          //     message: 'Your in the pool, hope you brought a towel!',
-          //     autoDismiss: 0,
-          //     link: `https://goerli.etherscan.io/tx/${transaction.hash}`
-          //   }
-          // }
-        },
         position: 'topRight'
       }
     },
@@ -418,12 +477,17 @@
     //   accountCenter: '#sample-container-el2'
     // },
     // Sign up for your free api key at www.Blocknative.com
-    apiKey,
+    // apiKey,
     theme: 'default'
   })
 
   // Subscribe to wallet updates
   const wallets$ = onboard.state.select('wallets').pipe(share())
+  let wagmiConfig
+  $: onboard.state.select('wagmiConfig').subscribe(config => {
+    wagmiConfig = config
+    console.log(wagmiConfig)
+  })
   wallets$.subscribe(wallet => {
     console.log(wallet)
     const unstoppableUser = wallet.find(
@@ -453,23 +517,30 @@
   const sendTransaction = async provider => {
     // if using ethers v6 this is:
     // ethersProvider = new ethers.BrowserProvider(wallet.provider, 'any')
-    const ethersProvider = new ethers.providers.Web3Provider(provider, 'any')
+    // const ethersProvider = new ethers.providers.Web3Provider(provider, 'any')
 
-    const signer = ethersProvider.getSigner()
+    // const signer = ethersProvider.getSigner()
 
-    const popTransaction = await signer.populateTransaction({
+    // const popTransaction = await signer.populateTransaction({
+    //   to: toAddress,
+    //   value: 10000000000000
+    // })
+
+    // const txn = await signer.sendTransaction(popTransaction)
+
+    // const receipt = await txn.wait()
+    // console.log(receipt)
+    const [primaryWallet] = onboard.state.get().wallets
+    const result = await wagmiSendTransaction(wagmiConfig, {
       to: toAddress,
-      value: 10000000000000
+      value: parseEther('0.001'),
+      connector: primaryWallet.wagmiConnector
     })
-
-    const txn = await signer.sendTransaction(popTransaction)
-
-    const receipt = await txn.wait()
-    console.log(receipt)
+    console.log(result)
   }
 
   const sendTransactionWithPreFlight = async (provider, balance) => {
-    await onboard.setChain({ chainId: '0x5' })
+    await onboard.setChain({ chainId: '0xAA36A7' })
 
     const balanceValue = Object.values(balance)[0]
     // if using ethers v6 this is:
@@ -504,47 +575,50 @@
     console.log(transactionHash)
   }
 
-  const signMessage = async (provider, address) => {
+  const signMessage = async (wagmiConnector, address) => {
     // if using ethers v6 this is:
     // ethersProvider = new ethers.BrowserProvider(wallet.provider, 'any')
-    const ethersProvider = new ethers.providers.Web3Provider(provider, 'any')
-    const signer = ethersProvider?.getSigner()
-    const addr = await signer?.getAddress()
-    const signature = await signer?.signMessage(signMsg)
-    let verifySign = false
-    let recoveredAddress = null
+    // const ethersProvider = new ethers.providers.Web3Provider(provider, 'any')
+    // const signer = ethersProvider?.getSigner()
+    // const addr = await signer?.getAddress()
+    // const signature = await signer?.signMessage(signMsg)
+    // let verifySign = false
+    // let recoveredAddress = null
+    await wagmiSignMessage(wagmiConfig, {
+      message: signMsg,
+      connector: wagmiConnector
+    }).then(console.log)
+    // try {
+    //   recoveredAddress = recoverAddress(
+    //     arrayify(hashMessage(signMsg)),
+    //     signature
+    //   )
+    //   verifySign = recoveredAddress === addr
+    // } catch (error) {
+    //   console.error('Error recovering address', error)
+    // }
 
-    try {
-      recoveredAddress = recoverAddress(
-        arrayify(hashMessage(signMsg)),
-        signature
-      )
-      verifySign = recoveredAddress === addr
-    } catch (error) {
-      console.error('Error recovering address', error)
-    }
+    // // contract wallets verify EIP-1654
+    // const verifySignBy1654 = new DappAuth(provider)
+    // const isAuthorizedSigner = await verifySignBy1654.isAuthorizedSigner(
+    //   signMsg,
+    //   signature,
+    //   address
+    // )
+    // if (!verifySign && !isAuthorizedSigner) {
+    //   console.error(
+    //     "Signature failed. Recovered address doesn' match signing address."
+    //   )
+    //   verifySign = recoveredAddress === addr
+    // }
 
-    // contract wallets verify EIP-1654
-    const verifySignBy1654 = new DappAuth(provider)
-    const isAuthorizedSigner = await verifySignBy1654.isAuthorizedSigner(
-      signMsg,
-      signature,
-      address
-    )
-    if (!verifySign && !isAuthorizedSigner) {
-      console.error(
-        "Signature failed. Recovered address doesn' match signing address."
-      )
-      verifySign = recoveredAddress === addr
-    }
-
-    console.log({ signMsg, signature, recoveredAddress, addr })
+    // console.log({ signMsg, signature, recoveredAddress, addr })
   }
 
   let typedMsg = JSON.stringify(
     {
       domain: {
-        chainId: '0x5',
+        chainId: '0xAA36A7',
         name: 'Web3-Onboard Test App',
         verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
         version: '1'
@@ -591,8 +665,9 @@
     undefined,
     2
   )
-  const signTypedMessage = async (provider, address) => {
-    await onboard.setChain({ chainId: '0x5' })
+  const signTypedMessage = async (connector, address) => {
+    await onboard.setChain({ chainId: '0xAA36A7' })
+    const provider = await connector.getProvider()
     const signature = await provider.request({
       method: 'eth_signTypedData_v4',
       params: [address, typedMsg]
@@ -611,6 +686,23 @@
 
   function isSVG(str) {
     return str.includes('<svg')
+  }
+
+  async function switchWagmiChain(chainId) {
+    let chainAsNumber
+    if (isHex(chainId)) {
+      chainAsNumber = fromHex(chainId, 'number')
+    } else if (!isHex(chainId) && typeof chainId === 'number') {
+      chainAsNumber = chainId
+    } else {
+      throw new Error('Invalid chainId')
+    }
+    const [primaryWallet] = onboard.state.get().wallets
+    const { wagmiConnector } = primaryWallet
+    await switchChain(wagmiConfig, {
+      chainId: chainAsNumber,
+      connector: wagmiConnector
+    })
   }
 </script>
 
@@ -749,17 +841,17 @@
           >
         </div>
         <div class="switch-chain-container">
-          <button on:click={() => onboard.setChain({ chainId: '0x1' })}
+          <button on:click={() => switchWagmiChain('0x1')}
             >Set Chain to Mainnet</button
           >
-          <button on:click={() => onboard.setChain({ chainId: '0x5' })}
-            >Set Chain to Goerli</button
+          <button on:click={() => switchWagmiChain(11155111)}
+            >Set Chain to Sepolia</button
           >
-          <button on:click={() => onboard.setChain({ chainId: '0x89' })}
+          <button on:click={() => switchWagmiChain('0x89')}
             >Set Chain to Matic</button
           >
-          <button on:click={() => onboard.setChain({ chainId: 10 })}
-            >Set Chain to Optimism</button
+          <button on:click={() => switchWagmiChain(10)}
+            >Set Chain to OP Mainnet</button
           >
         </div>
         <div class="position-buttons">
@@ -823,7 +915,7 @@
     {/if}
   </div>
   {#if $wallets$}
-    {#each $wallets$ as { icon, label, accounts, chains, provider, instance }}
+    {#each $wallets$ as { icon, label, accounts, chains, provider, instance, wagmiConnector }}
       <div class="connected-wallet" data-testid="connected-wallet">
         <div class="flex-centered" style="width: 10rem;">
           <div style="width: 2rem; height: 2rem">
@@ -879,7 +971,7 @@
               bind:value={toAddress}
               data-testid="sendTransaction"
             />
-            <button on:click={sendTransaction(provider)}>
+            <button on:click={sendTransaction(wagmiConnector)}>
               Send Transaction
             </button>
           </div>
@@ -903,7 +995,7 @@
               placeholder="Message..."
               bind:value={signMsg}
             />
-            <button on:click={signMessage(provider, address)}>
+            <button on:click={signMessage(wagmiConnector, address)}>
               Sign Message
             </button>
           </div>
@@ -913,7 +1005,7 @@
               type="text"
               class="sign-transaction-textarea"
             />
-            <button on:click={signTypedMessage(provider, address)}>
+            <button on:click={signTypedMessage(wagmiConnector, address)}>
               Sign Typed Message
             </button>
           </div>
@@ -925,7 +1017,7 @@
               class="sign-transaction-textarea"
             />
             <button
-              on:click={signTransactionMessage(provider)}
+              on:click={signTransactionMessage(wagmiConnector)}
               style="margin: 0 0 0 .5rem"
             >
               Sign Transaction
@@ -934,7 +1026,13 @@
         {/each}
         <button
           style="margin-top: 0.5rem;"
-          on:click={() => onboard.disconnectWallet({ label })}
+          on:click={() => {
+            const wagmiConfig = onboard.state.get().wagmiConfig
+            const disconnectThisWallet = getConnectors(wagmiConfig).find(
+              connector => connector.name === label
+            )
+            disconnect(wagmiConfig, { connector: wagmiConnector })
+          }}
         >
           Disconnect Wallet
         </button>

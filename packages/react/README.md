@@ -24,10 +24,6 @@ import { init, useConnectWallet } from '@web3-onboard/react'
 import injectedModule from '@web3-onboard/injected-wallets'
 import { ethers } from 'ethers'
 
-// Sign up to get your free API key at https://explorer.blocknative.com/?signup=true
-// Required for Transaction Notifications and Transaction Preview
-const apiKey = '1730eff0-9d50-4382-a3fe-89f0d34a2070'
-
 const injected = injectedModule()
 
 const infuraKey = '<INFURA_KEY>'
@@ -35,7 +31,7 @@ const rpcUrl = `https://mainnet.infura.io/v3/${infuraKey}`
 
 // initialize Onboard
 init({
-  apiKey,
+  // This javascript object is unordered meaning props do not require a certain order
   wallets: [injected],
   chains: [
     {
@@ -91,14 +87,14 @@ import injectedModule from '@web3-onboard/injected-wallets'
 
 const INFURA_KEY = ''
 
-const ethereumRopsten = {
-  id: '0x3',
-  token: 'rETH',
-  label: 'Ethereum Ropsten',
-  rpcUrl: `https://ropsten.infura.io/v3/${INFURA_KEY}`
+const ethereumSepolia = {
+  id: 11155111,
+  token: 'ETH',
+  label: 'Sepolia',
+  rpcUrl: 'https://rpc.sepolia.org/'
 }
 
-const chains = [ethereumRopsten]
+const chains = [ethereumSepolia]
 const wallets = [injectedModule()]
 
 const web3Onboard = init({
@@ -242,7 +238,6 @@ type UseNotifications = (): [
     update: UpdateNotification
   },
   (update: Partial<Notify>) => void,
-  (options: PreflightNotificationsOptions) => Promise<void | string>
 ]
 
 type Notification = {
@@ -297,14 +292,6 @@ type Notify = {
   position?: NotificationPosition
 }
 
-type PreflightNotificationsOptions = {
-  sendTransaction?: () => Promise<string | void>
-  estimateGas?: () => Promise<string>
-  gasPrice?: () => Promise<string>
-  balance?: string | number
-  txDetails?: TxDetails
-  txApproveReminderTimeout?: number
-}
 type TxDetails = {
   value: string | number
   to?: string
@@ -446,4 +433,61 @@ type useSetLocale = (): ((locale: string) => void)
 const updateLocale = useSetLocale()
 
 updateLocale('es')
+```
+
+## `useWagmiConfig`
+
+This hook allows you to get the WagmiConfig (Config from the Wagmi project) from @web3-onboard/core if web3-onboard has been initialized with the wagmi property imported and passing into the web3-onboard/core config.
+
+```ts
+import Onboard from '@web3-onboard/core'
+import injectedModule from '@web3-onboard/injected-wallets'
+import wagmi from '@web3-onboard/wagmi'
+import {
+  sendTransaction as wagmiSendTransaction,
+  switchChain,
+  disconnect,
+  getConnectors
+} from '@web3-onboard/wagmi'
+import { parseEther, isHex, fromHex } from 'viem'
+
+const injected = injectedModule()
+
+const onboard = Onboard({
+  wagmi,
+  wallets: [injected],
+  chains: [
+    {
+      id: '0x1',
+      token: 'ETH',
+      label: 'Ethereum',
+      rpcUrl: 'https://mainnet.infura.io/v3/17c1e1500e384acfb6a72c5d2e67742e'
+    }
+  ]
+  // ... other Onboard options
+})
+
+const sendTransaction = async () => {
+  // current primary wallet - as multiple wallets can connect this value is the currently active
+  const [activeWallet] = onboard.state.get().wallets
+  const { wagmiConnector } = activeWallet
+  const wagmiConfig = onboard.state.get().wagmiConfig
+  const result = await wagmiSendTransaction(wagmiConfig, {
+    to: toAddress,
+    // desired connector to send txn from
+    connector: wagmiConnector,
+    value: parseEther('0.001')
+  })
+  console.log(result)
+}
+
+async function signMessage(chainId) {
+  // current primary wallet - as multiple wallets can connect this value is the currently active
+  const [activeWallet] = onboard.state.get().wallets
+  const wagmiConfig = onboard.state.get().wagmiConfig
+  await wagmiSignMessage(wagmiConfig, {
+    message: 'This is my message to you',
+    connector: activeWallet.wagmiConnector
+  })
+}
 ```
