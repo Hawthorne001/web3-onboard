@@ -59,7 +59,7 @@
   },
   "dependencies": {
     "@ethereumjs/tx": "^3.4.0",
-    "@ethersproject/providers": "^5.5.0",
+    "@ethersproject/providers": "^5.8.0",
     "@web3-onboard/common": "^2.3.4",
     "@web3-onboard/hw-common": "^2.3.1",
     "buffer": "^6.0.3",
