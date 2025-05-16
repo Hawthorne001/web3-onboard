@@ -82,7 +82,7 @@
   "dependencies": {
     "@web3-onboard/common": "^2.3.3",
     "joi": "17.9.1",
-    "magic-sdk": "^8.1.0",
+    "magic-sdk": "^29.0.5",
     "rxjs": "^7.5.2"
   }
 }
