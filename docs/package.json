@@ -51,12 +51,12 @@
   "type": "module",
   "dependencies": {
     "@safe-global/safe-apps-provider": "^0.18.0",
-    "@safe-global/safe-apps-sdk": "^8.1.0",
+    "@safe-global/safe-apps-sdk": "^9.1.0",
     "@web3-onboard/bitget": "^2.1.1",
     "@web3-onboard/blocto": "^2.1.1",
     "@web3-onboard/para": "^2.4.0",
     "@web3-onboard/cede-store": "^2.3.1",
-    "@web3-onboard/coinbase": "^2.3.1",
+    "@web3-onboard/coinbase": "^2.4.2",
     "@web3-onboard/core": "^2.23.1-alpha.1",
     "@web3-onboard/dcent": "^2.2.8",
     "@web3-onboard/enkrypt": "^2.1.1",
@@ -92,7 +92,7 @@
     "@web3-onboard/zeal": "^2.1.1",
     "animejs": "^3.2.1",
     "bnc-sdk": "^4.6.6",
-    "ethers": "^5.7.0",
+    "ethers": "^6.0.0",
     "tailwindcss": "^3.3.1"
   }
 }
