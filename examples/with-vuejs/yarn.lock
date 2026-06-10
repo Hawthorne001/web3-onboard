@@ -1019,12 +1019,21 @@
     ethers "5.5.4"
     joi "17.9.1"
 
-"@web3-onboard/core@^2.21.2":
-  version "2.21.2"
-  resolved "https://registry.yarnpkg.com/@web3-onboard/core/-/core-2.21.2.tgz#962683efc87b29ee9150ab8d7ea9568ea3b41dd5"
-  integrity sha512-apzVi2zWqs4ktZBBJ60x1e4odI1mSoZ2c69bXUg36A0xI0iRFQ9Od44peI3mfTDEru7hWsr81Nv6l+v3HRSKLw==
+"@web3-onboard/common@^2.3.4":
+  version "2.3.4"
+  resolved "https://registry.yarnpkg.com/@web3-onboard/common/-/common-2.3.4.tgz#1ce41e090c19e8ac802c45737de3dda3dabea751"
+  integrity sha512-LQM7ZA1LoJ4GirsVEWHkv9KNJcrIT+AplR957BP5O8tll+p/A1GCju89C7jAMnb3+9LShUCwHcbE4o8l8gVb9A==
   dependencies:
-    "@web3-onboard/common" "^2.3.3"
+    bignumber.js "^9.1.0"
+    ethers "5.5.4"
+    joi "17.9.1"
+
+"@web3-onboard/core@^2.21.6":
+  version "2.21.6"
+  resolved "https://registry.yarnpkg.com/@web3-onboard/core/-/core-2.21.6.tgz#e2307fb569ef131440c2bce1a8a87d3ff16bcfae"
+  integrity sha512-eb9bmIK/n6U7ZpC3Bd8tXrBdc5XDh5pzhcXArqMxR2MKxoB6i7aeLO9A3AJcwwEql3eNF+UDnhzK+KXTBOVPEQ==
+  dependencies:
+    "@web3-onboard/common" "^2.3.4"
     bignumber.js "^9.0.0"
     bnc-sdk "^4.6.7"
     bowser "^2.11.0"
@@ -1047,15 +1056,15 @@
     joi "17.9.1"
     lodash.uniqby "^4.7.0"
 
-"@web3-onboard/vue@^2.5.7":
-  version "2.7.12"
-  resolved "https://registry.yarnpkg.com/@web3-onboard/vue/-/vue-2.7.12.tgz#b758327af5f59adb406acb6495b3c5432642140a"
-  integrity sha512-wxyMZkhGaUo5WCk+cYXgRP/xFI0TtK+RrX1cOckO0LhR6eENmuWRM3SIA7HaQyX7l5Wq8xjqF5XeRI2zlEa/1w==
+"@web3-onboard/vue@^2.7.16":
+  version "2.7.16"
+  resolved "https://registry.yarnpkg.com/@web3-onboard/vue/-/vue-2.7.16.tgz#41cf2dfed6662603b02040f6612f2454a0eb72d2"
+  integrity sha512-ZHvsjfZhbkfysPLt60HnCT86fuCXxeHprsiEAB4JVaKXryyAzyCEPFCbvap9xsQAoa8hM8HY+BeFo1+FZSBDsg==
   dependencies:
     "@vueuse/core" "^8.4.2"
     "@vueuse/rxjs" "^8.2.0"
-    "@web3-onboard/common" "^2.3.3"
-    "@web3-onboard/core" "^2.21.2"
+    "@web3-onboard/common" "^2.3.4"
+    "@web3-onboard/core" "^2.21.6"
     vue-demi "^0.12.4"
 
 acorn-jsx@^5.3.2:
