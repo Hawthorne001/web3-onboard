@@ -26,7 +26,7 @@
   "dependencies": {
     "@0xpass/webauthn-signer": "2.0.0",
     "@blocto/dappauth": "^2.1.0",
-    "@safe-global/safe-apps-provider": "^0.18.0",
+    "@safe-global/safe-apps-provider": "^0.18.2",
     "@safe-global/safe-apps-sdk": "^8.1.0",
     "@web3-onboard/arcana-auth": "^2.1.0",
     "@web3-onboard/bitget": "2.1.1",
