@@ -61,7 +61,7 @@
   "dependencies": {
     "@ledgerhq/connect-kit": "1.1.12",
     "@walletconnect/client": "^1.8.0",
-    "@walletconnect/ethereum-provider": "2.9.1",
+    "@walletconnect/ethereum-provider": "2.11.2",
     "@walletconnect/modal": "2.6.1",
     "@web3-onboard/common": "^2.4.1",
     "rxjs": "^7.5.2"
